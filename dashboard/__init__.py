@@ -3,7 +3,7 @@ from flask import Flask
 from .routes.auth import auth
 from .routes.main import main
 
-from .commands import create_tables
+from .commands import create_tables, create_products
 
 from .extensions import db
 
@@ -18,5 +18,6 @@ def create_app(config_file='settings.py'):
     app.register_blueprint(auth)
 
     app.cli.add_command(create_tables)
+    app.cli.add_command(create_products)
 
     return app
