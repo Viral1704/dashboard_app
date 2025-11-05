@@ -1,9 +1,14 @@
 import click
 
+from faker import Faker
+from random import randint, choice
+
 from flask.cli import with_appcontext
 
 from .extensions import db
 from .models import Customer, Product, Order
+
+fake = Faker()
 
 
 @click.command('create_tables')
@@ -21,4 +26,24 @@ def create_products():
 
     db.session.add_all([product1, product2, product3])
     db.session.commit()
+
+
+@click.command('create_orders')
+@with_appcontext
+def create_orders():
+    products = Product.query.all()
+
+    for _ in range(100):
+        customer = Customer(name = fake.name())
+        db.session.add(customer)
+        db.session.flush()  # Ensure customer gets an ID
+
+        quantity = randint(1, 7)
+        product = choice(products)
+        date = fake.date_time_between(start_date='-600d', end_date='now')
+
+        order = Order(customer_id = customer.id, product_id = product.id, quantity = quantity, date = date)
+        
+        db.session.add(order)
     
+    db.session.commit()
