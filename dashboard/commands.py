@@ -53,7 +53,7 @@ def create_orders():
 @click.command(name = 'test_query')
 @with_appcontext
 def test_query():
-    results = (
+    monthly_earnings = (
         db.session.query(
             func.extract('year', Order.date), 
             func.extract('month', Order.date),
@@ -64,4 +64,14 @@ def test_query():
         .group_by(func.extract('year', Order.date), func.extract('month', Order.date))
         .all() # This is query on Orders table grouping by year and month of the date field for getting monthly orders.
     )
-    print(results)
+
+
+    revenue_per_product = db.session.query(
+        Product.id, 
+        func.sum(Order.quantity * Product.price))\
+    .join(Product)\
+    .group_by(Product.id)\
+    .all()
+
+
+    print(revenue_per_product)
