@@ -2,6 +2,7 @@ import click
 
 from faker import Faker
 from random import randint, choice
+from sqlalchemy.sql import func
 
 from flask.cli import with_appcontext
 
@@ -11,13 +12,13 @@ from .models import Customer, Product, Order
 fake = Faker()
 
 
-@click.command('create_tables')
+@click.command(name = 'create_tables')
 @with_appcontext
 def create_tables():
     db.create_all()
 
 
-@click.command('create_products')
+@click.command(name = 'create_products')
 @with_appcontext
 def create_products():
     product1 = Product(name = 'First Product', price = 10, monthly_goal = 1000)
@@ -28,7 +29,7 @@ def create_products():
     db.session.commit()
 
 
-@click.command('create_orders')
+@click.command(name = 'create_orders')
 @with_appcontext
 def create_orders():
     products = Product.query.all()
@@ -47,3 +48,20 @@ def create_orders():
         db.session.add(order)
     
     db.session.commit()
+
+
+@click.command(name = 'test_query')
+@with_appcontext
+def test_query():
+    results = (
+        db.session.query(
+            func.extract('year', Order.date), 
+            func.extract('month', Order.date),
+            func.sum(Order.quantity * Product.price),
+            func.count()
+        )
+        .join(Product)\
+        .group_by(func.extract('year', Order.date), func.extract('month', Order.date))
+        .all() # This is query on Orders table grouping by year and month of the date field for getting monthly orders.
+    )
+    print(results)
