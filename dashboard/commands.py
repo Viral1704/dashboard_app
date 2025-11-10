@@ -61,7 +61,9 @@ def test_query():
             func.count()
         )
         .join(Product)\
-        .group_by(func.extract('year', Order.date), func.extract('month', Order.date))
+        .group_by(
+            func.extract('year', Order.date), 
+            func.extract('month', Order.date))
         .all() # This is query on Orders table grouping by year and month of the date field for getting monthly orders.
     )
 
@@ -73,5 +75,6 @@ def test_query():
     .group_by(Product.id)\
     .all()
 
+    first_product = Product.query.get(1)
+    print(first_product.revenue_this_month())
 
-    print(revenue_per_product)
