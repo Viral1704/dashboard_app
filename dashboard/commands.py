@@ -3,6 +3,7 @@ import click
 from faker import Faker
 from random import randint, choice
 from sqlalchemy.sql import func
+from datetime import datetime
 
 from flask.cli import with_appcontext
 
@@ -76,5 +77,9 @@ def test_query():
     .all()
 
     first_product = Product.query.get(1)
-    print(first_product.revenue_this_month())
+    # print(first_product.revenue_this_month())
 
+    beginning_of_day = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+    orders = Order.query.filter(Order.date > beginning_of_day).count()
+
+    print(Order.get_monthly_earnings())

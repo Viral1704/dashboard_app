@@ -29,3 +29,34 @@ class Order(db.Model):
     date = db.Column(db.DateTime)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+
+    @staticmethod
+    def get_monthly_earnings():
+        monthly_earnings = (
+        db.session.query(
+            func.extract('year', Order.date), 
+            func.extract('month', Order.date),
+            func.sum(Order.quantity * Product.price),
+            func.count()
+        )
+        .join(Product)\
+        .group_by(
+            func.extract('year', Order.date), 
+            func.extract('month', Order.date))
+        .all() # This is query on Orders table grouping by year and month of the date field for getting monthly orders.
+        )
+
+        return monthly_earnings
+    
+    @staticmethod
+    def revenue_per_product():
+        revenue_per_product = db.session.query(
+        Product.id, 
+        func.sum(Order.quantity * Product.price))\
+        .join(Product)\
+        .group_by(Product.id)\
+        .all()
+        
+        return revenue_per_product
+    
+    
