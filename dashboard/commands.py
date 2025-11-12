@@ -3,7 +3,6 @@ import click
 from faker import Faker
 from random import randint, choice
 from sqlalchemy.sql import func
-from datetime import datetime
 
 from flask.cli import with_appcontext
 
@@ -51,35 +50,3 @@ def create_orders():
     db.session.commit()
 
 
-@click.command(name = 'test_query')
-@with_appcontext
-def test_query():
-    monthly_earnings = (
-        db.session.query(
-            func.extract('year', Order.date), 
-            func.extract('month', Order.date),
-            func.sum(Order.quantity * Product.price),
-            func.count()
-        )
-        .join(Product)\
-        .group_by(
-            func.extract('year', Order.date), 
-            func.extract('month', Order.date))
-        .all() # This is query on Orders table grouping by year and month of the date field for getting monthly orders.
-    )
-
-
-    revenue_per_product = db.session.query(
-        Product.id, 
-        func.sum(Order.quantity * Product.price))\
-    .join(Product)\
-    .group_by(Product.id)\
-    .all()
-
-    first_product = Product.query.get(1)
-    # print(first_product.revenue_this_month())
-
-    beginning_of_day = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-    orders = Order.query.filter(Order.date > beginning_of_day).count()
-
-    print(Order.get_monthly_earnings())
