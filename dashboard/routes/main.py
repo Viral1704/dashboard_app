@@ -13,7 +13,9 @@ def index():
         hour=0, minute=0, second=0, microsecond=0)
     orders_today = Order.query.filter(Order.date > beginning_of_day).count()
 
+
     monthly_earings = Order.get_monthly_earnings()
+
 
     yearly_earnings = 0
     this_year = datetime.today().year
@@ -22,10 +24,39 @@ def index():
         if month[0] == this_year:
             yearly_earnings += month[2]
 
+
+    products = Product.query.all()
+    product_goals = []
+    total_goal = 0
+
+    for product in products:
+        product_monthly_revenue = product.revenue_this_month()
+        goal_percentage = product_monthly_revenue / product.monthly_goal
+
+        if goal_percentage >= 1:
+            goal_percentage = 1
+        product_goal = {
+            'name' : product.name , 
+            'goal_percentage' : goal_percentage * 100
+            }
+        
+        product_goals.append(product_goal)
+
+        total_goal += product.monthly_goal
+
+    earnings_this_month = monthly_earings[-1][2]
+    monthly_goal_percentage = (earnings_this_month / total_goal) * 100
+
+    if monthly_goal_percentage > 100:
+        monthly_goal_percentage = 100
+
+
     context = {
         'orders_today' : orders_today,
         'earnings_this_month' : monthly_earings[-1][2],
-        'yearly_earnings' : yearly_earnings
+        'yearly_earnings' : yearly_earnings,
+        'product_goals' : product_goals,
+        'monthly_goal_percentage' : monthly_goal_percentage
     }
 
     return render_template('index.html', **context)
