@@ -51,7 +51,7 @@ class Order(db.Model):
     @staticmethod
     def revenue_per_product():
         revenue_per_product = db.session.query(
-        Product.id, 
+        Product.name, 
         func.sum(Order.quantity * Product.price))\
         .join(Product)\
         .group_by(Product.id)\

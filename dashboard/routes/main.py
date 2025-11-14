@@ -61,6 +61,26 @@ def index():
     months = months[this_month:] + months[:this_month]
 
 
+    revenue_per_product = Order.revenue_per_product()
+    total_revenue = 0
+
+    product_labels = []
+    for product in revenue_per_product:
+        total_revenue += product[1]
+        product_labels.append(product[0])
+
+    revenue_per_product_pct = []
+    for product in revenue_per_product:
+        percentage = product[1] / total_revenue
+        revenue_per_product_pct.append(percentage * 100)
+
+
+    revenue_per_product_data = {
+        'labels' : product_labels,
+        'data' : revenue_per_product_pct
+    }
+
+
     context = {
         'orders_today' : orders_today,
         'earnings_this_month' : monthly_earnings[-1][2],
@@ -68,7 +88,8 @@ def index():
         'product_goals' : product_goals,
         'monthly_goal_percentage' : monthly_goal_percentage,
         'monthly_earnings_array' : monthly_earnings_array,
-        'months' : months
+        'months' : months,
+        'revenue_per_product_data' : revenue_per_product_data
     }
 
     return render_template('index.html', **context)
